@@ -67,3 +67,10 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: reports/coverage.xml
           fail_ci_if_error: true
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: reports/test.xml
+          fail_ci_if_error: true
