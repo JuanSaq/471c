@@ -101,7 +101,6 @@ def check_term(
                 recur(effect)
             recur(value)
 
-
 def check_program(
     program: Program,
 ) -> None:
