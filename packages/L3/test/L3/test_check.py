@@ -44,6 +44,7 @@ def test_check_term_let_scope():
     with pytest.raises(ValueError):
         check_term(term, context)
 
+
 def test_check_term_let_multiple_binders():
     term = Let(
         bindings=[
@@ -56,6 +57,7 @@ def test_check_term_let_multiple_binders():
     context: Context = {}
 
     check_term(term, context)
+
 
 def test_check_term_let_duplicate_binders():
     term = Let(
@@ -257,13 +259,15 @@ def test_check_program():
 
     check_program(program)
 
+
 def test_check_program_has_parameters():
     program = Program(
-        parameters=["x","y","z"],
+        parameters=["x", "y", "z"],
         body=Immediate(value=0),
     )
 
     check_program(program)
+
 
 def test_check_program_duplicate_parameters():
     program = Program(
