@@ -1,3 +1,5 @@
+%ignore " "
+
 program     : "(" PROGRAM "(" parameters ")" term ")"
 parameters  : IDENTIFIER*
 
@@ -19,12 +21,41 @@ let         : "(" LET "(" bindings ")" term ")"
 
 letrec      : "(" LETREC "(" bindings ")" term ")"
 
+reference   : IDENTIFIER
+
+abstract    : "(" LAMBDA "(" parameters ")" term ")"
+
+apply       : "(" term term* ")"
+
+immediate   : IMMEDIATE
+
+primitive   : "(" OPERATOR term term ")"
+
+branch      : "(" BRANCH  "(" COMPARE term term ")" term term ")"
+
+allocate    : "(" ALLOCATE IMMEDIATE ")"
+
+load        : "(" LOAD term IMMEDIATE ")"
+
+store       : "(" STORE term IMMEDIATE term ")"
+
+begin       : "(" BEGIN term+ ")"
+
 bindings    : binding*
-binding     : IDENTIFIER term
+binding     : "(" IDENTIFIER term ")"
+
+OPERATOR    : "+" | "-" | "*"
+COMPARE     : ">" | "<" | "=="
 
 PROGRAM.2   : "l3"
 LET.2       : "let"
 LETREC.2    : "letrec"
+BRANCH.2    : "if"
+ALLOCATE.2  : "allocate"
+LOAD.2      : "load"
+STORE.2     : "store"
+BEGIN.2     : "begin"
 LAMBDA.2    : "\\" | "lambda" | "λ"
 
 IDENTIFIER  : /[a-zA-Z_][a-zA-Z0-9_]*/
+IMMEDIATE   : /-?\d+/

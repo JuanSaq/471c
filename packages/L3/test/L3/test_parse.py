@@ -101,6 +101,19 @@ def test_parse_abstract():
     assert actual == expected
 
 
+def test_parse_abstract_other_keyword():
+    source = "(lambda (x) x)"
+
+    expected = Abstract(
+        parameters=["x"],
+        body=Reference(name="x"),
+    )
+
+    actual = parse_term(source)
+
+    assert actual == expected
+
+
 # Apply
 def test_parse_apply_empty():
     source = "(x)"
