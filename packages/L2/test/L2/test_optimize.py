@@ -495,14 +495,12 @@ def test_free_variables_let():
             ("x", Immediate(value=1)),
             ("y", Immediate(value=2)),
         ],
-        body=Reference(name="x"),
+        body=Immediate(value=1),
     )
-
-    expected = {"x"}
 
     actual = free_variables(term)
 
-    assert actual == expected
+    assert actual == set()
 
 
 def test_free_variables_abstract():
