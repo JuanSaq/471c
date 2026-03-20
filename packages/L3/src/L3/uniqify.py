@@ -32,40 +32,75 @@ def uniqify_term(
 
     match term:
         case Let(bindings=bindings, body=body):
-            pass
+            local = {name: fresh(name) for name, _ in bindings}
+            return Let(
+                bindings=[(local[name], _term(value)) for name, value in bindings],
+                body=_term(body, context={**context, **local}),
+            )
 
         case LetRec(bindings=bindings, body=body):
-            pass
+            local = {name: fresh(name) for name, _ in bindings}
+            return LetRec(
+                bindings=[(local[name], _term(value)) for name, value in bindings],
+                body=_term(body, context={**context, **local}),
+            )
 
         case Reference(name=name):
-            pass
+            return Reference(name=context[name])
 
         case Abstract(parameters=parameters, body=body):
-            pass
+            local = {parameter: fresh(parameter) for parameter in parameters}
+            return Abstract(
+                parameters=[local[parameter] for parameter in parameters],
+                body=_term(body, context={**context, **local}),
+            )
 
         case Apply(target=target, arguments=arguments):
-            pass
+            return Apply(
+                target=_term(target),
+                arguments=[_term(argument) for argument in arguments],
+            )
 
         case Immediate():
-            pass
+            return term
 
         case Primitive(operator=operator, left=left, right=right):
-            pass
+            return Primitive(
+                operator=operator,
+                left=_term(left),
+                right=_term(right),
+            )
 
         case Branch(operator=operator, left=left, right=right, consequent=consequent, otherwise=otherwise):
-            pass
+            return Branch(
+                operator=operator,
+                left=_term(left),
+                right=_term(right),
+                consequent=_term(consequent),
+                otherwise=_term(otherwise),
+            )
 
         case Allocate():
-            pass
+            return term
 
         case Load(base=base, index=index):
-            pass
+            return Load(
+                base=_term(base),
+                index=index,
+            )
 
         case Store(base=base, index=index, value=value):
-            pass
+            return Store(
+                base=_term(base),
+                index=index,
+                value=_term(value),
+            )
 
         case Begin(effects=effects, value=value):  # pragma: no branch
-            pass
+            return Begin(
+                effects=[_term(effect) for effect in effects],
+                value=_term(value),
+            )
 
 
 def uniqify_program(
