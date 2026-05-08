@@ -15,19 +15,7 @@ class Program(BaseModel, frozen=True):
 
 
 type Term = Annotated[
-    Let
-    | Reference
-    | Abstract
-    | Apply
-    | Immediate
-    | Boolean
-    | Primitive
-    | Branch
-    | Allocate
-    | Load
-    | Store
-    | Begin
-    | LetRec,
+    Let | Reference | Abstract | Apply | Immediate | Primitive | Branch | Allocate | Load | Store | Begin | LetRec,
     Field(discriminator="tag"),
 ]
 
@@ -64,11 +52,6 @@ class Apply(BaseModel, frozen=True):
 class Immediate(BaseModel, frozen=True):
     tag: Literal["immediate"] = "immediate"
     value: int
-
-
-class Boolean(BaseModel, frozen=True):
-    tag: Literal["boolean"] = "boolean"
-    value: bool
 
 
 class Primitive(BaseModel, frozen=True):

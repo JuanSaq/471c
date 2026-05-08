@@ -7,7 +7,6 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
-    Boolean,
     Branch,
     Identifier,
     Immediate,
@@ -75,9 +74,6 @@ def check_term(
                 recur(argument)
 
         case Immediate(value=_value):
-            pass
-
-        case Boolean(value=_value):
             pass
 
         case Primitive(operator=_operator, left=left, right=right):
