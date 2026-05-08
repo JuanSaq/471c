@@ -8,6 +8,7 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
     Immediate,
     Let,
@@ -62,6 +63,9 @@ def uniqify_term(
             )
 
         case Immediate():
+            return term
+
+        case Boolean():
             return term
 
         case Primitive(operator=operator, left=left, right=right):

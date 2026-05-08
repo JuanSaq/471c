@@ -9,7 +9,7 @@ type Nat = Annotated[int, Field(ge=0)]
 
 
 class Program(BaseModel, frozen=True):
-    tag: Literal["l3"] = "l3"
+    tag: Literal["l4"] = "l4"
     parameters: Sequence[Identifier]
     body: Term
 

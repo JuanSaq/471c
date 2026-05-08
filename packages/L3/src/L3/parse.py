@@ -9,6 +9,7 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
     Identifier,
     Immediate,
@@ -125,6 +126,13 @@ class AstTransformer(Transformer[Token, Program | Term]):
         value: int,
     ) -> Term:
         return Immediate(value=value)
+
+    @v_args(inline=True)
+    def boolean(
+        self,
+        value: bool,
+    ) -> Term:
+        return Boolean(value=value)
 
     @v_args(inline=True)
     def primitive(

@@ -8,6 +8,7 @@ from .syntax import (
     Allocate,
     Apply,
     Begin,
+    Boolean,
     Branch,
     Immediate,
     Let,
@@ -79,6 +80,9 @@ def to_ast_term(
             )
 
         case Immediate(value=value):
+            return ast.Constant(value=value)
+
+        case Boolean(value=value):
             return ast.Constant(value=value)
 
         case Primitive(operator=operator, left=left, right=right):

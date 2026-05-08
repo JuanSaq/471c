@@ -48,6 +48,10 @@ def eliminate_letrec_term(
         case L3.Immediate(value=value):
             return L2.Immediate(value=value)
 
+        case L3.Boolean(value=value):
+            # return L2.Boolean(value=value)
+            pass
+
         case L3.Primitive(operator=operator, left=left, right=right):
             return L2.Primitive(
                 operator=operator,
