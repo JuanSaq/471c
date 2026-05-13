@@ -16,11 +16,15 @@ from .syntax import (
     Let,
     LetRec,
     Load,
+    Nat,
     Primitive,
     Program,
     Reference,
     Store,
     Term,
+    Vector,
+    VectorRef,
+    VectorSet,
 )
 
 
@@ -205,6 +209,30 @@ class AstTransformer(Transformer[Token, Program | Term]):
             effects=list(terms[:-1]),
             value=terms[-1],
         )
+    
+    @v_args(inline=True)
+    def vector(
+        self,
+        *elements: Term,
+    ) -> Vector:
+        return Vector(elements=elements)
+
+    @v_args(inline=True)
+    def vector_ref(
+        self,
+        vector: Term,
+        index: Nat,
+    ) -> VectorRef:
+        return VectorRef(vector=vector, index=index)
+
+    @v_args(inline=True)
+    def vector_set(
+        self,
+        vector: Term,
+        index: Nat,
+        value: Term,
+    ) -> VectorSet:
+        return VectorSet(vector=vector, index=index, value=value)
 
 
 def parse_term(source: str) -> Term:

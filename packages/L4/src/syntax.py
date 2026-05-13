@@ -27,7 +27,10 @@ type Term = Annotated[
     | Load
     | Store
     | Begin
-    | LetRec,
+    | LetRec
+    | Vector
+    | VectorRef
+    | VectorSet,
     Field(discriminator="tag"),
 ]
 
@@ -108,4 +111,22 @@ class Store(BaseModel, frozen=True):
 class Begin(BaseModel, frozen=True):
     tag: Literal["begin"] = "begin"
     effects: Sequence[Term]
+    value: Term
+
+# Hold the initial values
+class Vector(BaseModel, frozen=True):
+    tag: Literal["vector"] = "vector"
+    elements: Sequence[Term]
+
+# Array for reads
+class VectorRef(BaseModel, frozen=True):
+    tag: Literal["vector-ref"] = "vector-ref"
+    vector: Term
+    index: Nat
+
+# Array for writes
+class VectorSet(BaseModel, frozen=True):
+    tag: Literal["vector-set"] = "vector-set"
+    vector: Term
+    index: Nat
     value: Term
