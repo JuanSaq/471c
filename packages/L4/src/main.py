@@ -6,8 +6,9 @@ from L2.cps_convert import cps_convert_program
 from L2.optimize import optimize_program
 from L3.check import check_program
 from L3.eliminate_letrec import eliminate_letrec_program
-from L3.parse import parse_program
+from .parse import parse_program
 from L3.uniqify import uniqify_program
+from .eliminate_L4 import eliminate_L4_program
 
 
 @click.command(
@@ -45,7 +46,9 @@ def main(
     optimize: bool,
     input: Path,
 ) -> None:
-    l3 = parse_program(input.read_text())
+    l4 = parse_program(input.read_text())
+
+    l3 = eliminate_L4_program(l4)
 
     if check:
         check_program(l3)
