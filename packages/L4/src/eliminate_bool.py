@@ -49,7 +49,7 @@ def eliminate_letrec_term(
             return L3.Immediate(value=value)
 
         case L4.Boolean(value=value):
-            if value == True:
+            if value:
                 return L3.Immediate(value=1)
             else:
                 return L3.Immediate(value=0)
