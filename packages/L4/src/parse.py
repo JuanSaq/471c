@@ -25,6 +25,12 @@ from .syntax import (
     Vector,
     VectorRef,
     VectorSet,
+    Match,
+    Pattern,
+    PatternVariable,
+    PatternWildcard,
+    PatternImmediate,
+    PatternVector,
 )
 
 
@@ -225,6 +231,30 @@ class AstTransformer(Transformer[Token, Program | Term]):
         value: Term,
     ) -> VectorSet:
         return VectorSet(vector=vector, index=index, value=value)
+    
+    @v_args(inline=True)
+    def match(self, _match: Token, expr: Term, cases: Sequence[tuple[Pattern, Term]]) -> Term:
+        return Match(expr=expr, cases=cases)
+
+    @v_args(inline=True)
+    def case(self, pattern: Pattern, term: Term) -> tuple[Pattern, Term]:
+        return (pattern, term)
+    
+    @v_args(inline=True)
+    def pattern_variable(self, name: Identifier) -> Pattern:
+        return PatternVariable(name=name)
+
+    @v_args(inline=True)
+    def pattern_wildcard(self, _wildcard: Token) -> Pattern:
+        return PatternWildcard()
+
+    @v_args(inline=True)
+    def pattern_immediate(self, value: Nat) -> Pattern:
+        return PatternImmediate(value=value)
+
+    @v_args(inline=True)
+    def pattern_vector(self, _vector: Token, patterns: Sequence[Pattern]) -> Pattern:
+        return PatternVector(patterns=patterns)
 
 
 def parse_term(source: str) -> Term:
