@@ -19,6 +19,10 @@ from .syntax import (
     Reference,
     Store,
     Term,
+    Vector,
+    VectorRef,
+    VectorSet,
+    Match,
 )
 
 
@@ -149,6 +153,35 @@ def to_ast_term(
                 slice=ast.Constant(-1),
                 ctx=ast.Load(),
             )
+        case Vector(elements=elements):
+            return ast.List(elts=[_term(element) for element in elements])
+        
+        case VectorRef(vector=vector, index=index):
+            return ast.Subscript(
+                value=_term(vector), 
+                slice=ast.Constant(value=index), 
+                ctx=ast.Load()
+            )
+        
+        case VectorSet(vector=vector, index=index, value=value):
+            return ast.Subscript(
+                value=ast.Tuple(
+                    elts=[
+                        ast.Call(
+                            func=ast.Attribute(value=_term(vector), attr="__setitem__", ctx=ast.Load()),
+                            args=[ast.Constant(value=index), _term(value)],
+                        ),
+                        ast.Constant(value=0),
+                    ],
+                    ctx=ast.Load(),
+                ),
+                slice=ast.Constant(-1),
+                ctx=ast.Load(),
+            )
+        
+        # Matches are hard, just desugar it in eliminate_L4 and then convert to Python as normal
+        case Match():
+            raise NotImplementedError("Match expressions must be eliminated before to_python conversion. Run eliminate_L4 first.")
 
 
 def to_ast_program(
