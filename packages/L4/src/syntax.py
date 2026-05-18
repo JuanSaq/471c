@@ -22,7 +22,7 @@ type Term = Annotated[
     | Immediate
     | Boolean
     | Primitive
-    | Branch
+    | If
     | Allocate
     | Load
     | Store
@@ -81,11 +81,9 @@ class Primitive(BaseModel, frozen=True):
     right: Term
 
 
-class Branch(BaseModel, frozen=True):
-    tag: Literal["branch"] = "branch"
-    operator: Literal["<", "=="]
-    left: Term
-    right: Term
+class If(BaseModel, frozen=True):
+    tag: Literal["if"] = "if"
+    condition: Term
     consequent: Term
     otherwise: Term
 
@@ -113,16 +111,19 @@ class Begin(BaseModel, frozen=True):
     effects: Sequence[Term]
     value: Term
 
+
 # Hold the initial values
 class Vector(BaseModel, frozen=True):
     tag: Literal["vector"] = "vector"
     elements: Sequence[Term]
+
 
 # Array for reads
 class VectorRef(BaseModel, frozen=True):
     tag: Literal["vector-ref"] = "vector-ref"
     vector: Term
     index: Nat
+
 
 # Array for writes
 class VectorSet(BaseModel, frozen=True):

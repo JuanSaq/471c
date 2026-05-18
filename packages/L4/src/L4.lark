@@ -11,7 +11,7 @@ term        : let
             | immediate
             | boolean
             | primitive
-            | branch
+            | if
             | allocate
             | load
             | store
@@ -37,7 +37,9 @@ boolean     : BOOLEAN
 
 primitive   : "(" OPERATOR term term ")"
 
-branch      : "(" BRANCH  "(" COMPARE term term ")" term term ")"
+// branch      : "(" BRANCH  "(" COMPARE term term ")" term term ")"
+// if replaces branch :)
+if          : "(" IF "(" BOOLEAN ")" term term ")"
 
 allocate    : "(" ALLOCATE IMMEDIATE ")"
 

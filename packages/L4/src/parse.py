@@ -10,8 +10,8 @@ from .syntax import (
     Apply,
     Begin,
     Boolean,
-    Branch,
     Identifier,
+    If,
     Immediate,
     Let,
     LetRec,
@@ -152,19 +152,11 @@ class AstTransformer(Transformer[Token, Program | Term]):
         )
 
     @v_args(inline=True)
-    def branch(
-        self,
-        _if: Token,
-        operator: Token,
-        left: Term,
-        right: Term,
-        consequent: Term,
-        otherwise: Term,
+    def If(  # capitalized because `if` is a reserved keyword
+        self, _if: Token, condition: Term, consequent: Term, otherwise: Term
     ) -> Term:
-        return Branch(
-            operator=operator.value,
-            left=left,
-            right=right,
+        return If(
+            condition=condition,
             consequent=consequent,
             otherwise=otherwise,
         )
@@ -209,7 +201,7 @@ class AstTransformer(Transformer[Token, Program | Term]):
             effects=list(terms[:-1]),
             value=terms[-1],
         )
-    
+
     @v_args(inline=True)
     def vector(
         self,

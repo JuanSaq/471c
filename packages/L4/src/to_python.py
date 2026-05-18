@@ -9,7 +9,7 @@ from .syntax import (
     Apply,
     Begin,
     Boolean,
-    Branch,
+    If,
     Immediate,
     Let,
     LetRec,
@@ -102,20 +102,9 @@ def to_ast_term(
                 right=_term(right),
             )
 
-        case Branch(operator=operator, left=left, right=right, consequent=consequent, otherwise=otherwise):
-            match operator:
-                case "<":
-                    op = ast.Lt()
-
-                case "==":  # pragma: no branch
-                    op = ast.Eq()
-
+        case If(condition=condition, consequent=consequent, otherwise=otherwise):
             return ast.IfExp(
-                test=ast.Compare(
-                    left=_term(left),
-                    ops=[op],
-                    comparators=[_term(right)],
-                ),
+                test=_term(condition),
                 body=_term(consequent),
                 orelse=_term(otherwise),
             )
