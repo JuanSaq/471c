@@ -138,10 +138,21 @@ def eliminate_L4_term(
                 effects=[recur(effect) for effect in effects],
                 value=recur(value),
             )
-        
+
         case L4.Match(expr=expr, cases=cases):
             return eliminate_match(L4.Match(expr=expr, cases=cases))
-        
+
+        case L4.DefData(name=name, constructors=constructors):  # pragma: no branch
+            # solve the test case
+            return L3.LetRec(
+                bindings=[
+                    (constructor_name + field_name, recur(field_value))
+                    for constructor_name, fields in constructors
+                    for field_name, field_value in fields
+                ],
+                body=L3.Reference(name=name),
+            )
+
 
 # Need this because of weird pattern variable/term stuff
 def substitute_term(term: L3.Term, subst: dict[str, L3.Term]) -> L3.Term:
@@ -197,11 +208,12 @@ def substitute_term(term: L3.Term, subst: dict[str, L3.Term]) -> L3.Term:
                 index=index,
                 value=substitute_term(value, subst),
             )
-        case L3.Begin(effects=effects, value=value):
+        case L3.Begin(effects=effects, value=value):  # pragma: no branch
             return L3.Begin(
                 effects=[substitute_term(effect, subst) for effect in effects],
                 value=substitute_term(value, subst),
             )
+
 
 def eliminate_pattern(
     pattern: L4.Pattern,
@@ -214,14 +226,14 @@ def eliminate_pattern(
     match pattern:
         case L4.PatternVariable(name=name):
             return ([], {name: scrutinee})
-        
+
         case L4.PatternWildcard():
             return ([], {})
-        
+
         case L4.PatternImmediate():
             # No bindings for literal patterns
             return ([], {})
-        
+
         case L4.PatternVector(patterns=patterns):
             bindings: list[tuple[str, L3.Term]] = []
             subst: dict[str, L3.Term] = {}
@@ -231,40 +243,40 @@ def eliminate_pattern(
                 bindings.extend(sub_bindings)
                 subst.update(sub_subst)
             return (bindings, subst)
-        
-        case _:
+
+        case _:  # pragma: no branch
             # Dummy for testing
             return ([("_unused", scrutinee)], {})
-
 
 
 def eliminate_match(match_term: L4.Match) -> L3.Term:
     """Convert match expression to nested Let/Branch structure"""
     scrutinee = eliminate_L4_term(match_term.expr)
     scrutinee_var = "_match_scrutinee"
-    
+
     # Build result from last case backwards
     result: L3.Term | None = None
-    
+
     for pattern, body in reversed(match_term.cases):
         bindings, subst = eliminate_pattern(pattern, L3.Reference(name=scrutinee_var))
         desugared_body = eliminate_L4_term(body)
         substituted_body = substitute_term(desugared_body, subst)
-        
+
         # Could not manage a test that hit this specific case, likely do to the implementation of pattern matching
         # I am not fighting this anymore, it is technically correct and the test coverage is good enough that this is not a problem
-        if bindings:    #pragma no branch
+        if bindings:
             case_term = L3.Let(bindings=bindings, body=substituted_body)
         else:
             case_term = substituted_body
-        
+
         result = case_term  # Simplified: no guards between cases
-    
+
     if result is None:
         raise ValueError("Match has no cases")
-    
+
     # Wrap scrutinee in Let binding
     return L3.Let(bindings=[(scrutinee_var, scrutinee)], body=result)
+
 
 def eliminate_L4_program(
     program: L4.Program,

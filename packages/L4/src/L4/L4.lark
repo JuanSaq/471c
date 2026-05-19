@@ -20,6 +20,7 @@ term        : let
             | vector_ref
             | vector_set
             | match
+            | def_data
 
 
 let         : "(" LET "(" bindings ")" term ")"
@@ -73,6 +74,10 @@ pattern_wildcard  : "_"
 pattern_immediate : IMMEDIATE
 
 pattern_vector    : "(" "vector" pattern* ")"
+
+def_data          : "(" "def-data" IDENTIFIER data+ ")"
+
+data              : "(" IDENTIFIER bindings ")"
 
 bindings    : binding*
 binding     : "(" IDENTIFIER term ")"

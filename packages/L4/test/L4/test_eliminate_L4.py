@@ -788,11 +788,7 @@ def test_match_deeply_nested_patterns():
         expr=L4.Vector(elements=[L4.Immediate(value=1)]),
         cases=[
             (
-                L4.PatternVector(
-                    patterns=[
-                        L4.PatternVector(patterns=[L4.PatternVariable(name="x")])
-                    ]
-                ),
+                L4.PatternVector(patterns=[L4.PatternVector(patterns=[L4.PatternVariable(name="x")])]),
                 L4.Reference(name="x"),
             )
         ],
@@ -805,8 +801,8 @@ def test_match_deeply_nested_patterns():
 
 def test_eliminate_match_error_no_cases():
     """Test that eliminate_match raises error on empty cases"""
-    from L4.eliminate_L4 import eliminate_match
     import pytest
+    from L4.eliminate_L4 import eliminate_match
 
     term = L4.Match(expr=L4.Immediate(value=1), cases=[])
 
@@ -883,13 +879,7 @@ def test_eliminate_pattern_vector_deeply_nested():
     from L4.eliminate_L4 import eliminate_pattern
 
     pattern = L4.PatternVector(
-        patterns=[
-            L4.PatternVector(
-                patterns=[
-                    L4.PatternVector(patterns=[L4.PatternVariable(name="x")])
-                ]
-            )
-        ]
+        patterns=[L4.PatternVector(patterns=[L4.PatternVector(patterns=[L4.PatternVariable(name="x")])])]
     )
     scrutinee = L3.Reference(name="arr")
 
@@ -953,6 +943,7 @@ def test_match_with_vector_and_nested_match():
 
     assert isinstance(actual, L3.Let)
 
+
 def test_substitute_term_unknown_type():
     """Force substitute_term to take the unmatched branch."""
     from L4.eliminate_L4 import substitute_term
@@ -967,8 +958,8 @@ def test_substitute_term_unknown_type():
 
 def test_eliminate_pattern_unknown_type():
     """Force eliminate_pattern to take the fallback and produce bindings."""
-    from L4.eliminate_L4 import eliminate_pattern
     from L3 import syntax as L3
+    from L4.eliminate_L4 import eliminate_pattern
 
     class NotAPattern:
         pass
@@ -993,3 +984,24 @@ def test_eliminate_L4_term_unknown_type():
     assert eliminate_L4_term(NotATerm()) is None
 
 
+def test_eliminate_L4_term_defdata():
+    term = L4.DefData(
+        name="shape",
+        constructors=[
+            ("square", [("s", L4.Immediate(value=2))]),
+            ("rect", [("w", L4.Immediate(value=3)), ("l", L4.Immediate(value=2))]),
+        ],
+    )
+
+    actual = eliminate_L4_term(term)
+
+    expected = L3.LetRec(
+        bindings=[
+            ("squares", L3.Immediate(value=2)),
+            ("rectw", L3.Immediate(value=3)),
+            ("rectl", L3.Immediate(value=2)),
+        ],
+        body=L3.Reference(name="shape"),
+    )
+
+    assert actual == expected

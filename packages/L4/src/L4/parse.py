@@ -31,6 +31,7 @@ from .syntax import (
     PatternWildcard,
     PatternImmediate,
     PatternVector,
+    DefData
 )
 
 
@@ -255,6 +256,11 @@ class AstTransformer(Transformer[Token, Program | Term]):
     @v_args(inline=True)
     def pattern_vector(self, _vector: Token, patterns: Sequence[Pattern]) -> Pattern:
         return PatternVector(patterns=patterns)
+    
+    @v_args(inline=True)
+    def def_data(self, _defdata: Token, name: Identifier, constructors: Sequence[tuple[Identifier, Sequence[Identifier]]]) -> Term:
+        return DefData(name=name, constructors=constructors)
+
 
 
 def parse_term(source: str) -> Term:

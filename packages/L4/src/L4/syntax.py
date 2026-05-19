@@ -31,7 +31,8 @@ type Term = Annotated[
     | Vector
     | VectorRef
     | VectorSet
-    | Match,
+    | Match
+    | DefData,
     Field(discriminator="tag"),
 ]
 
@@ -133,30 +134,43 @@ class VectorSet(BaseModel, frozen=True):
     index: Nat
     value: Term
 
+
 # Seperate pattern types for match statements
 type Pattern = Annotated[
     PatternVariable | PatternWildcard | PatternImmediate | PatternVector,
     Field(discriminator="tag"),
 ]
 
+
 # Pattern classes for match statements
 class PatternVariable(BaseModel, frozen=True):
     tag: Literal["pattern-variable"] = "pattern-variable"
     name: Identifier
 
+
 class PatternWildcard(BaseModel, frozen=True):
     tag: Literal["pattern-wildcard"] = "pattern-wildcard"
+
 
 class PatternImmediate(BaseModel, frozen=True):
     tag: Literal["pattern-immediate"] = "pattern-immediate"
     value: int
 
+
 class PatternVector(BaseModel, frozen=True):
     tag: Literal["pattern-vector"] = "pattern-vector"
     patterns: Sequence[Pattern]
+
 
 # The actual match
 class Match(BaseModel, frozen=True):
     tag: Literal["match"] = "match"
     expr: Term
     cases: Sequence[tuple[Pattern, Term]]
+
+
+# Create the data type
+class DefData(BaseModel, frozen=True):
+    tag: Literal["def-data"] = "def-data"
+    name: Identifier
+    constructors: Sequence[tuple[Identifier, Sequence[tuple[Identifier, Term]]]]

@@ -9,11 +9,13 @@ from .syntax import (
     Apply,
     Begin,
     Boolean,
+    DefData,
     If,
     Immediate,
     Let,
     LetRec,
     Load,
+    Match,
     Primitive,
     Program,
     Reference,
@@ -22,7 +24,6 @@ from .syntax import (
     Vector,
     VectorRef,
     VectorSet,
-    Match,
 )
 
 
@@ -155,14 +156,10 @@ def to_ast_term(
             )
         case Vector(elements=elements):
             return ast.List(elts=[_term(element) for element in elements])
-        
+
         case VectorRef(vector=vector, index=index):
-            return ast.Subscript(
-                value=_term(vector), 
-                slice=ast.Constant(value=index), 
-                ctx=ast.Load()
-            )
-        
+            return ast.Subscript(value=_term(vector), slice=ast.Constant(value=index), ctx=ast.Load())
+
         case VectorSet(vector=vector, index=index, value=value):
             return ast.Subscript(
                 value=ast.Tuple(
@@ -178,10 +175,32 @@ def to_ast_term(
                 slice=ast.Constant(-1),
                 ctx=ast.Load(),
             )
-        
+
+        case DefData(name=name, constructors=constructors):
+            return ast.Subscript(
+                value=ast.Tuple(
+                    elts=[
+                        *[
+                            ast.NamedExpr(
+                                target=ast.Name(id=encode(constructor_name), ctx=ast.Store()),
+                                value=_term(field_value),
+                            )
+                            for constructor_name, fields in constructors
+                            for _field_name, field_value in fields
+                        ],
+                        ast.Name(id=encode(name), ctx=ast.Load()),
+                    ],
+                    ctx=ast.Load(),
+                ),
+                slice=ast.Constant(-1),
+                ctx=ast.Load(),
+            )
+
         # Matches are hard, just desugar it in eliminate_L4 and then convert to Python as normal
         case Match():
-            raise NotImplementedError("Match expressions must be eliminated before to_python conversion. Run eliminate_L4 first.")
+            raise NotImplementedError(
+                "Match expressions must be eliminated before to_python conversion. Run eliminate_L4 first."
+            )
 
 
 def to_ast_program(
