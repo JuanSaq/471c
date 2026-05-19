@@ -10,13 +10,20 @@ from .syntax import (
     Apply,
     Begin,
     Boolean,
+    DefData,
     Identifier,
     If,
     Immediate,
     Let,
     LetRec,
     Load,
+    Match,
     Nat,
+    Pattern,
+    PatternImmediate,
+    PatternVariable,
+    PatternVector,
+    PatternWildcard,
     Primitive,
     Program,
     Reference,
@@ -25,13 +32,6 @@ from .syntax import (
     Vector,
     VectorRef,
     VectorSet,
-    Match,
-    Pattern,
-    PatternVariable,
-    PatternWildcard,
-    PatternImmediate,
-    PatternVector,
-    DefData
 )
 
 
@@ -232,7 +232,7 @@ class AstTransformer(Transformer[Token, Program | Term]):
         value: Term,
     ) -> VectorSet:
         return VectorSet(vector=vector, index=index, value=value)
-    
+
     @v_args(inline=True)
     def match(self, _match: Token, expr: Term, cases: Sequence[tuple[Pattern, Term]]) -> Term:
         return Match(expr=expr, cases=cases)
@@ -240,7 +240,7 @@ class AstTransformer(Transformer[Token, Program | Term]):
     @v_args(inline=True)
     def case(self, pattern: Pattern, term: Term) -> tuple[Pattern, Term]:
         return (pattern, term)
-    
+
     @v_args(inline=True)
     def pattern_variable(self, name: Identifier) -> Pattern:
         return PatternVariable(name=name)
@@ -256,11 +256,15 @@ class AstTransformer(Transformer[Token, Program | Term]):
     @v_args(inline=True)
     def pattern_vector(self, _vector: Token, patterns: Sequence[Pattern]) -> Pattern:
         return PatternVector(patterns=patterns)
-    
-    @v_args(inline=True)
-    def def_data(self, _defdata: Token, name: Identifier, constructors: Sequence[tuple[Identifier, Sequence[Identifier]]]) -> Term:
-        return DefData(name=name, constructors=constructors)
 
+    @v_args(inline=True)
+    def def_data(
+        self,
+        _defdata: Token,
+        name: Identifier,
+        constructors: Sequence[tuple[Identifier, Sequence[tuple[Identifier, Term]]]],
+    ) -> Term:
+        return DefData(name=name, constructors=constructors)
 
 
 def parse_term(source: str) -> Term:
